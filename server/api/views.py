@@ -4,13 +4,16 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import MenuItem, Order
-from .serializers import MenuItemSerializer, OrderSerializer, RegisterSerializer
+from .serializers import MenuItemSerializer, OrderSerializer, RegisterSerializer, LoginSerializer
 
 class RegisterUserView(APIView):
     permission_classes = [permissions.AllowAny]
 
+    @swagger_auto_schema(request_body=RegisterSerializer)
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -22,6 +25,7 @@ class RegisterUserView(APIView):
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
+    @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -35,6 +39,7 @@ class LoginView(APIView):
 class MenuItemViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_permissions(self):
         if self.request.method in ['POST', 'PUT', 'DELETE']:

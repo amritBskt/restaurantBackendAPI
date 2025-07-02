@@ -12,21 +12,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
-class MenuItemSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(write_only=True, required=False)
-    image_url = serializers.SerializerMethodField(read_only=True)
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
 
+
+class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
-        fields = ['id', 'name', 'description', 'price', 'available', 'image', 'image_url']
-
-    def get_image_url(self, obj):
-        request = self.context.get('request')
-        if request and request.method in ['POST', 'PUT', 'PATCH']:
-            return None  # Hide in POST/PUT responses
-        if obj.image and hasattr(obj.image, 'url'):
-            return request.build_absolute_uri(obj.image.url)
-        return None
+        fields = ['id', 'name', 'description', 'price', 'available', 'image']
 
 
 class OrderItemWriteSerializer(serializers.ModelSerializer):
@@ -55,6 +49,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'user', 'status', 'total_price', 'created_at', 'items', 'order_items']
         read_only_fields = ['user', 'total_price', 'created_at']
+
     def validate_items(self, value):
         if self.context['request'].method == 'POST':
             if not value:
@@ -84,6 +79,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return order
   
     def update(self, instance, validated_data):
+        validated_data.pop('items', None)
         user = self.context['request'].user
 
         if not user.is_staff and 'status' in validated_data:
