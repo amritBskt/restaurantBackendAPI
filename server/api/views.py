@@ -9,6 +9,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import MenuItem, Order
 from .serializers import MenuItemSerializer, OrderSerializer, RegisterSerializer, LoginSerializer
+from .pagination import CustomPagination
 
 class RegisterUserView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -40,6 +41,7 @@ class MenuItemViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     parser_classes = [MultiPartParser, FormParser]
+    pagination_class = CustomPagination
 
     def get_permissions(self):
         if self.request.method in ['POST', 'PUT', 'DELETE']:
@@ -66,6 +68,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated, IsAdminOrReadOnly]
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         user = self.request.user

@@ -137,7 +137,16 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',  # Optional default
-    ]
+    ],
+    'DEFAULT_THROTTLE_CLASSES':[
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES':{
+        'user':'50/min',
+        'anon':'10/min',
+    },
+    # 'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPagination', #For Global Pagination to all views
 }
 
 SWAGGER_SETTINGS = {
